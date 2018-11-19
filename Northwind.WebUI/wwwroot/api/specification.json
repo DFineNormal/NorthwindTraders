@@ -144,15 +144,13 @@
         ],
         "responses": {
           "200": {
-            "x-nullable": true,
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "file"
-                }
-              }
-            }
+            "description": ""
+          },
+          "404": {
+            "description": ""
+          },
+          "default": {
+            "description": ""
           }
         }
       }
@@ -175,16 +173,14 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "x-nullable": true,
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "file"
-                }
-              }
-            }
+          "400": {
+            "description": ""
+          },
+          "201": {
+            "description": ""
+          },
+          "default": {
+            "description": ""
           }
         }
       }
@@ -216,16 +212,17 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "x-nullable": true,
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "file"
-                }
-              }
-            }
+          "404": {
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "default": {
+            "description": ""
+          },
+          "204": {
+            "description": ""
           }
         }
       }
@@ -246,16 +243,17 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": ""
+          },
           "200": {
-            "x-nullable": true,
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "file"
-                }
-              }
-            }
+            "description": ""
+          },
+          "400": {
+            "description": ""
+          },
+          "default": {
+            "description": ""
           }
         }
       }

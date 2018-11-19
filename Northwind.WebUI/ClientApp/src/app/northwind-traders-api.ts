@@ -208,10 +208,10 @@ export class CategoriesClient implements ICategoriesClient {
 
 export interface ICustomersClient {
     getAll(): Observable<CustomersListViewModel | null>;
-    get(id: string | null): Observable<FileResponse | null>;
-    create(command: CreateCustomerCommand): Observable<FileResponse | null>;
-    update(id: string | null, command: UpdateCustomerCommand): Observable<FileResponse | null>;
-    delete(id: string | null): Observable<FileResponse | null>;
+    get(id: string | null): Observable<void>;
+    create(command: CreateCustomerCommand): Observable<void>;
+    update(id: string | null, command: UpdateCustomerCommand): Observable<void>;
+    delete(id: string | null): Observable<void>;
 }
 
 @Injectable()
@@ -274,7 +274,7 @@ export class CustomersClient implements ICustomersClient {
         return _observableOf<CustomersListViewModel | null>(<any>null);
     }
 
-    get(id: string | null): Observable<FileResponse | null> {
+    get(id: string | null): Observable<void> {
         let url_ = this.baseUrl + "/api/Customers/Get/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -286,7 +286,6 @@ export class CustomersClient implements ICustomersClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json", 
-                "Accept": "application/json"
             })
         };
 
@@ -297,34 +296,36 @@ export class CustomersClient implements ICustomersClient {
                 try {
                     return this.processGet(<any>response_);
                 } catch (e) {
-                    return <Observable<FileResponse | null>><any>_observableThrow(e);
+                    return <Observable<void>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<FileResponse | null>><any>_observableThrow(response_);
+                return <Observable<void>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGet(response: HttpResponseBase): Observable<FileResponse | null> {
+    protected processGet(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
             (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            return _observableOf({ fileName: fileName, data: <any>responseBlob, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
+        if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
+            }));
+        } else {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<FileResponse | null>(<any>null);
     }
 
-    create(command: CreateCustomerCommand): Observable<FileResponse | null> {
+    create(command: CreateCustomerCommand): Observable<void> {
         let url_ = this.baseUrl + "/api/Customers/Create";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -336,7 +337,6 @@ export class CustomersClient implements ICustomersClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json", 
-                "Accept": "application/json"
             })
         };
 
@@ -347,34 +347,36 @@ export class CustomersClient implements ICustomersClient {
                 try {
                     return this.processCreate(<any>response_);
                 } catch (e) {
-                    return <Observable<FileResponse | null>><any>_observableThrow(e);
+                    return <Observable<void>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<FileResponse | null>><any>_observableThrow(response_);
+                return <Observable<void>><any>_observableThrow(response_);
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<FileResponse | null> {
+    protected processCreate(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
             (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            return _observableOf({ fileName: fileName, data: <any>responseBlob, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
+        if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("A server error occurred.", status, _responseText, _headers);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<FileResponse | null>(<any>null);
     }
 
-    update(id: string | null, command: UpdateCustomerCommand): Observable<FileResponse | null> {
+    update(id: string | null, command: UpdateCustomerCommand): Observable<void> {
         let url_ = this.baseUrl + "/api/Customers/Update/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -389,7 +391,6 @@ export class CustomersClient implements ICustomersClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json", 
-                "Accept": "application/json"
             })
         };
 
@@ -400,34 +401,40 @@ export class CustomersClient implements ICustomersClient {
                 try {
                     return this.processUpdate(<any>response_);
                 } catch (e) {
-                    return <Observable<FileResponse | null>><any>_observableThrow(e);
+                    return <Observable<void>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<FileResponse | null>><any>_observableThrow(response_);
+                return <Observable<void>><any>_observableThrow(response_);
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<FileResponse | null> {
+    protected processUpdate(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
             (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            return _observableOf({ fileName: fileName, data: <any>responseBlob, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
+        if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("A server error occurred.", status, _responseText, _headers);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<FileResponse | null>(<any>null);
     }
 
-    delete(id: string | null): Observable<FileResponse | null> {
+    delete(id: string | null): Observable<void> {
         let url_ = this.baseUrl + "/api/Customers/Delete/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -439,7 +446,6 @@ export class CustomersClient implements ICustomersClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json", 
-                "Accept": "application/json"
             })
         };
 
@@ -450,31 +456,37 @@ export class CustomersClient implements ICustomersClient {
                 try {
                     return this.processDelete(<any>response_);
                 } catch (e) {
-                    return <Observable<FileResponse | null>><any>_observableThrow(e);
+                    return <Observable<void>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<FileResponse | null>><any>_observableThrow(response_);
+                return <Observable<void>><any>_observableThrow(response_);
         }));
     }
 
-    protected processDelete(response: HttpResponseBase): Observable<FileResponse | null> {
+    protected processDelete(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
             (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            return _observableOf({ fileName: fileName, data: <any>responseBlob, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
+        if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("A server error occurred.", status, _responseText, _headers);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
+            }));
+        } else {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<FileResponse | null>(<any>null);
     }
 }
 

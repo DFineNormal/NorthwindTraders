@@ -6,6 +6,7 @@ using Northwind.Application.Customers.Commands.UpdateCustomer;
 using Northwind.Application.Customers.Commands.CreateCustomer;
 using Northwind.Application.Customers.Commands.DeleteCustomer;
 
+[assembly: ApiConventionType(typeof(DefaultApiConventions))]
 namespace Northwind.WebUI.Controllers
 {
     public class CustomersController : BaseController
